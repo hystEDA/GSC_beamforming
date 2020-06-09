@@ -1,13 +1,13 @@
-% LECTURA DE DATOS MULTICANAL
+% MULTICHANNEL DATA READING
 % 16 kHz
-% 16 bits por muestra
+% 16 bits per sample
 % 15 canales
 % Big-endian
-fm = 16000; % Frec. muestreo
-nc = 15;    % Nº de canales.
+fm = 16000; % Freq. sampling
+nc = 15;    %No. of channels.
 fname = 'an103-mtms-arr4A.adc';
-% dir = '/zona_amp/data/Multimic/multimic/15element/';
-% fname = strcat(dir,fname)
+dir = './RETO2016_TOOLS/signals/';
+fname = strcat(dir,fname);
 [fid,msg] = fopen(fname,'r','b');
 if fid < 0
   disp(msg);
@@ -16,14 +16,14 @@ else
   fclose(fid);
 end
 
-% Separa canales.
+% Separate channels.
 nsamp=[];
 for i = 1:nc
     x{i} = data(i:nc:end);
     x{i} = offsetcomp(x{i});
     nsamp(i)=length(x{i});
 end
-Nsamp=min(nsamp); %Numero de muestras a emplear en todas las senales
+Nsamp=min(nsamp); %Number of samples to be used in all the signals
 
 
 

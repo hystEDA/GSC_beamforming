@@ -8,7 +8,7 @@ addpath('./PESQ');
 %             Daniel Melgarejo García
 
 
-% Definition of Parameters:
+% Definición de Parametros:
 
 Fs=16000; %sampling rate
 nc=15;    %number of channels
@@ -24,7 +24,7 @@ clear angle
 
 
 
-w=(1/N)*ds.';                %%%%%%%%%%%% method Ai/N 
+w=(1/N)*ds.';                %%%%%%%%%%%% Método Ai/N 
 
 
 
@@ -50,14 +50,14 @@ w=(1/N)*ds.';                %%%%%%%%%%%% method Ai/N
 B = [zeros(1,N-1)' -1*eye(N-1)] + [eye(N-1) zeros(1,N-1)'];
 
 
-%Load the signals
+%Cargar las seÃ±ales
 Leer_Array_Signals;
 
-%Divide the message into frames
+%Dividir el mensaje en tramas
 ntrama=Nsamp/(L/2);
 ntrama=round(ntrama)-1;
 
-xout=zeros(length(x{1}),1); %We create the output vector with zeros.
+xout=zeros(length(x{1}),1); %Creamos el vector de salida con zeros.
 
 mat_temp = zeros(15,L/2+1);
 matout = zeros(N,Nsamp);
@@ -70,22 +70,23 @@ mu=0.0003;
 for k=1:ntrama-1
    xtemp=zeros;
     for nc=1:N
-        x1=fft((win.*x{nc}(ini:ini+(L-1)))); %We apply the Hanning window to each frame of each channel and we do the FFT
+        x1=fft((win.*x{nc}(ini:ini+(L-1)))); %Aplicamos la ventana de Hanning a cada trama de cada canal y le hacemos la FFT
         
-        mat_temp(nc,:) = (w(:,nc).*x1(1:(L/2)+1)).';  % auxiliary matrix to pass the synchronized channels to the blocking matrix
+        mat_temp(nc,:) = (w(:,nc).*x1(1:(L/2)+1)).';  % matriz auxiliar para pasar los canales sincronizados a la matriz de bloqueo
         
-% % % % % %      This xtemp is valid for Ai / N methods 
-       xtemp=xtemp+w(:,nc).*x1(1:(L/2)+1); %We multiply by the vector of weights and add each of the channels, in order to have a constructive result signal
+% % % % % %      Este xtemp vale para métodos  Ai/N  
+       xtemp=xtemp+w(:,nc).*x1(1:(L/2)+1); %Multiplicamos por el vector de pesos y vamos sumando cada uno de los canales, 
+                                            %a fin de tener una seÃ±al resultante constructiva
              
                                             
                                             
-% % % % % % % % % % % % % % % % % % % % % % % % % % %     Method 1/Ai                                    
+% % % % % % % % % % % % % % % % % % % % % % % % % % %     Método 1/Ai                                    
 %         Ainvers = (1./Ai);                                    
 %         xtemp=xtemp+Ainvers(:,nc).*w(:,nc).*x1(1:(L/2)+1);                                
 
 
 
-% % % % % % % % % % % % % % % % % % % % %  % % % % % % Method Ai/||ds||^2;
+% % % % % % % % % % % % % % % % % % % % %  % % % % % % Método Ai/||ds||^2;
 %         
 %                                             
 %          xtemp=xtemp+Ai2(:,nc).*w(:,nc).*x1(1:(L/2)+1); 
@@ -93,15 +94,15 @@ for k=1:ntrama-1
     end
     %matout(:,ini:ini+L-1)=matout(:,ini:ini+L-1)+win_mat.*real(ifft([mat_temp conj(mat_temp(:,end-1:-1:2))],[],1)); %Formamos la otra mitad de xtemp, hacemos la ifft y la multiplicamos por la ventana.
    
-    x2 = B*mat_temp;                          % We apply the blocking matrix to the frame of the 15 channels                            
-    [yout, ak] = lms_eq(ak,x2,xtemp,mu);      % customizable part is done
+    x2 = B*mat_temp;                          % Aplicamos la matriz de bloqueo a trama de los 15 canales                            
+    [yout, ak] = lms_eq(ak,x2,xtemp,mu);      % se hace la parte adaptable
         
         
-    xout(ini:ini+L-1)=xout(ini:ini+L-1)+win.*real(ifft([yout'; conj(yout(end-1:-1:2))'])); %We form the other half of xtemp, make the ifft and multiply it by the window.
+    xout(ini:ini+L-1)=xout(ini:ini+L-1)+win.*real(ifft([yout'; conj(yout(end-1:-1:2))'])); %Formamos la otra mitad de xtemp, hacemos la ifft y la multiplicamos por la ventana.
     ini=ini+L/2;
 end
 
-% xout is the output of the Beam Forming
+% xout es la salida del Beam Forming
 
 
 xfinal=xout;
@@ -112,9 +113,8 @@ array = 'array.wav';
 audiowrite(array,xfinal/max(max(xfinal), -min(xfinal)),Fs,'BitsPerSample',16);
 %soundsc(xout,Fs);
 
-%Load signals when cleaned
+%Cargar seÃ±al limpia
 fname = 'an103-mtms-senn4.adc';
-fname = strcat(dir,fname);
 [fid,msg] = fopen(fname,'r','b');
 if fid < 0
   disp(msg);
@@ -125,11 +125,11 @@ end
 xlimpia=data;
 
 
-%Audio signals clean
+%Audio seÃ±al limpia
 limpia = 'limpia.wav';
 %audiowrite(limpia,xlimpia,Fs)
 audiowrite(limpia,xlimpia/max(max(xlimpia),-min(xlimpia)),Fs,'BitsPerSample',16);
-%Comparison
+%ComparaciÃ³n
 pesq=pesq(limpia,array)
 
 soundsc(xfinal,Fs)
